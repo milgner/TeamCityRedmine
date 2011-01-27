@@ -2,8 +2,8 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.issueTracker.AbstractIssueFetcher;
 import jetbrains.buildServer.issueTracker.IssueData;
-import jetbrains.buildServer.util.EhCacheUtil;
 import jetbrains.buildServer.util.FileUtil;
+import jetbrains.buildServer.util.cache.EhCacheUtil;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.jdom.Element;
@@ -55,12 +55,12 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
             } catch (JDOMException e) {
                 throw new RuntimeException(String.format("Error parsing XML for issue '%s' on '%s'.", id, host));
             } catch (IOException e) {
-                throw new RuntimeException(String.format("Error reading XML for issue '%s' on 's'.", id, host));
+                throw new RuntimeException(String.format("Error reading XML for issue '%s' on '%s'.", id, host));
             }
         }
     }
 
-    public RedmineIssueFetcher(@org.jetbrains.annotations.NotNull jetbrains.buildServer.util.EhCacheUtil cacheUtil) {
+    public RedmineIssueFetcher(@org.jetbrains.annotations.NotNull EhCacheUtil cacheUtil) {
         super(cacheUtil);
     }
 

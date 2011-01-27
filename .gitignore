@@ -1,3 +1,5 @@
 .idea
 RedmineProvider.iml
 out
+bin
+build.properties

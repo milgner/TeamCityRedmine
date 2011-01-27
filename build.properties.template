@@ -1,0 +1,10 @@
+path.variable.maven_repository=/YOUR/HOME/DIRECTORY/.m2/repository
+path.variable.teamcitydistribution=/YOUR/PATH/TO/TeamCity
+jdk.home.1.6=/usr/lib/jvm/java-6-sun
+idea.home=/YOUR/PATH/TO/IDEA
+redmineprovider.binaries.dir=bin
+
+deploy.host=YOUR_TEAMCITY_HOST
+deploy.dir=PATH_TO_PLUGINS_DIRECTORY
+deploy.user=SOME_USER_WITH_WRITE_PERMISSIONS
+deploy.keyfile=CORRESPONDING_SSH_KEY
