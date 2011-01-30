@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RedmineIssueProviderFactory extends AbstractIssueProviderFactory {
     protected RedmineIssueProviderFactory(@NotNull IssueFetcher fetcher) {
-        super(fetcher, "Redmine");
+        super(fetcher, "redmine");
     }
 
     @NotNull

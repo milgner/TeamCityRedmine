@@ -2,16 +2,23 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.issueTracker.AbstractIssueFetcher;
 import jetbrains.buildServer.issueTracker.IssueData;
+import jetbrains.buildServer.log.Log4jFactory;
 import jetbrains.buildServer.util.FileUtil;
 import jetbrains.buildServer.util.cache.EhCacheUtil;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Fetches issues from a Redmine installation
@@ -20,8 +27,16 @@ import java.io.InputStream;
  */
 public class RedmineIssueFetcher extends AbstractIssueFetcher {
 
+    private final static Log LOGGER = LogFactory.getLog(RedmineIssueFetcher.class);
+
+    private Pattern myPattern;
+
+    public void setPattern(final Pattern _myPattern) {
+        myPattern = _myPattern;
+    }
+
     public class RedmineFetchFunction implements FetchFunction {
-            private String host;
+        private String host;
         private String id;
         private Credentials credentials;
 
@@ -32,20 +47,23 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
         }
 
         @NotNull
-        public IssueData fetch() throws Exception {
+        public IssueData fetch() {
            String url = getUrl(host, id) + ".xml";
-           InputStream xml = fetchHttpFile(url, credentials);
-            if (xml == null) {
-                throw new RuntimeException(String.format("Failed to fetch issue from \"%s\".", url));
-            }
-            IssueData result = parseIssue(xml);
-            return result;
+           LOGGER.debug(String.format("Fetching issue data from %s", url));
+           try {
+               InputStream xml = fetchHttpFile(url, credentials);
+               IssueData result = parseIssue(xml);
+               LOGGER.debug(result.toString());
+               return result;
+           }   catch (IOException e) {
+               LOGGER.fatal(e);
+               throw new RuntimeException("Error fetching issue data", e);
+           }
         }
 
         private IssueData parseIssue(final InputStream _xml) {
             try {
-                Element root = FileUtil.parseDocument(_xml, false);
-                Element issue = root.getChild("issue");
+                Element issue = FileUtil.parseDocument(_xml, false);
                 String summary = getChildContent(issue, "subject");
                 String state = getAttribute(issue.getChild("status"), "name");
                 String url = getUrl(host, id);
@@ -71,13 +89,20 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
     }
 
     public String getUrl(@org.jetbrains.annotations.NotNull final String _host, @org.jetbrains.annotations.NotNull final String _id) {
+        LOGGER.debug(String.format("Getting URL for issue %s, using pattern %s to match", _id, myPattern.toString()));
+        String realId = _id;
+        Matcher matcher = myPattern.matcher(_id);
+        if (matcher.find()) {
+            realId = matcher.group(1);
+        }
         StringBuilder url = new StringBuilder();
         url.append(_host);
         if (!_host.endsWith("/")) {
             url.append("/");
         }
         url.append("issues/");
-        url.append(_id);
+        url.append(realId);
+        LOGGER.debug(String.format("URL is %s", url.toString()));
         return url.toString();
     }
 

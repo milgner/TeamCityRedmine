@@ -40,5 +40,13 @@
         <span id="error_secure:password" class="error"></span>
       </td>
     </tr>
+    <tr>
+       <th><label for="pattern" class="shortLabel">Ticket Pattern: <l:star/></label></th>
+       <td>
+         <props:textProperty name="pattern" maxlength="100" style="width: 16em;"/>
+         <span id="error_idPrefix" class="error"></span>
+         <span class="fieldExplanation">Use general regexp, e.g. #(\d+)<bs:help file="Issue+Tracker+Tab"/></span>
+        </td>
+    </tr>
   </table>
 </div>
