@@ -3,11 +3,11 @@
                  xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
   <info>
     <name>redmine</name>
-    <display-name>Redmine integration for TeamCity</display-name>
+    <display-name>Redmine issue tracker support</display-name>
     <version>0.1</version>
     <vendor>
       <name>Marcus Ilgner</name>
-      <url>http://github.com/milgner/redcity</url>
+      <url>http://github.com/milgner/TeamCityRedmine</url>
     </vendor>
   </info>
   <!-- deployment use-separate-classloader="true"/-->
