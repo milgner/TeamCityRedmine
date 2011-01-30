@@ -1,0 +1,24 @@
+div.redmineContainer {
+  background-color: #f0f0f0;
+  font-family: Arial,sans-serif;
+}
+
+div.redmineContainer td {
+  color: black;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+div.redmineContainer td a {
+  color: #003366;
+  font-weight: bold;
+}
+
+div.redmineContainer h3 {
+  color: #003366;
+  font-size: 17px;
+  font-weight: bold;
+  margin: 0 0 2px;
+  border-bottom: 1px solid #3c78b5;
+}
+
