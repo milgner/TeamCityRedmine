@@ -27,17 +27,10 @@
       </td>
     </tr>
     <tr>
-      <th><label for="username" class="shortLabel">Username:</label></th>
+      <th><label for="username" class="shortLabel">API token:</label></th>
       <td>
-        <props:textProperty name="username" maxlength="100" style="width: 16em;"/>
+        <props:textProperty name="apiToken" maxlength="100" style="width: 16em;"/>
         <span id="error_username" class="error"></span>
-      </td>
-    </tr>
-    <tr>
-      <th><label for="secure:password" class="shortLabel">Password:</label></th>
-      <td>
-        <props:passwordProperty name="secure:password" maxlength="100" style="width: 16em;"/>
-        <span id="error_secure:password" class="error"></span>
       </td>
     </tr>
     <tr>

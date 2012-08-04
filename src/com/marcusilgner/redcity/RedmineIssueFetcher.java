@@ -2,21 +2,16 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.issueTracker.AbstractIssueFetcher;
 import jetbrains.buildServer.issueTracker.IssueData;
-import jetbrains.buildServer.log.Log4jFactory;
 import jetbrains.buildServer.util.FileUtil;
 import jetbrains.buildServer.util.cache.EhCacheUtil;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,42 +22,55 @@ import java.util.regex.Pattern;
  */
 public class RedmineIssueFetcher extends AbstractIssueFetcher {
 
-    //private final static Log LOGGER = LogFactory.getLog(RedmineIssueFetcher.class);
-
     private Pattern myPattern;
+    private String apiToken;
 
     public void setPattern(final Pattern _myPattern) {
         myPattern = _myPattern;
     }
 
+    public void setApiToken(final String _apiToken) {
+        apiToken = _apiToken;
+    }
+
     public class RedmineFetchFunction implements FetchFunction {
         private String host;
         private String id;
-        private Credentials credentials;
+        private String apiToken;
 
-        public RedmineFetchFunction(final String _host, final String _id, final Credentials _credentials) {
+        public RedmineFetchFunction(final String _host, final String _id, final String _apiToken) {
             host = _host;
             id = _id;
-            credentials = _credentials;
+            apiToken = _apiToken;
         }
 
         @NotNull
         public IssueData fetch() {
            String url = getUrl(host, id) + ".xml";
-           //LOGGER.debug(String.format("Fetching issue data from %s", url));
            try {
-               InputStream xml = fetchHttpFile(url, credentials);
+               InputStream xml = fetchUrlWithRedmineHeader(url);
                IssueData result = parseIssue(xml);
-               //LOGGER.debug("IssueData: " + result.toString());
                return result;
            }   catch (IOException e) {
-               //LOGGER.fatal(e);
                throw new RuntimeException("Error fetching issue data", e);
            }
         }
 
+        private InputStream fetchUrlWithRedmineHeader(String _url) throws IOException {
+            try {
+                org.apache.commons.httpclient.HttpURL url = new org.apache.commons.httpclient.HttpURL(_url);
+                HttpMethod httpMethod = new GetMethod(_url);
+                httpMethod.setRequestHeader("X-Redmine-API-Key", apiToken);
+                HttpClient httpClient = new HttpClient();
+                httpClient.executeMethod(httpMethod);
+                return httpMethod.getResponseBodyAsStream();
+            } catch (URIException e) {
+                // too lazy to write exception handling :P
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
         private IssueData parseIssue(final InputStream _xml) {
-            //LOGGER.debug("Parsing issue data");
             try {
                 Element issue = FileUtil.parseDocument(_xml, false);
                 String summary = getChildContent(issue, "subject");
@@ -72,10 +80,8 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
                 IssueData result = new IssueData(id, summary, state, url, resolved);
                 return result;
             } catch (JDOMException e) {
-                //LOGGER.error(e);
                 throw new RuntimeException(String.format("Error parsing XML for issue '%s' on '%s'.", id, host));
             } catch (IOException e) {
-                //LOGGER.error(e);
                 throw new RuntimeException(String.format("Error reading XML for issue '%s' on '%s'.", id, host));
             }
         }
@@ -87,15 +93,11 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
 
     public IssueData getIssue(@org.jetbrains.annotations.NotNull final String _host, @org.jetbrains.annotations.NotNull final String _id, @org.jetbrains.annotations.Nullable final org.apache.commons.httpclient.Credentials _credentials)
             throws Exception {
-        //LOGGER.debug(String.format("getIssue called: %s, %s", _host, _id));
         String url = getUrl(_host, _id);
-        RedmineFetchFunction fetchFunction = new RedmineFetchFunction(_host, _id, _credentials);
-        return getFromCacheOrFetch(url, fetchFunction);
-        //return fetchFunction.fetch();
+        return getFromCacheOrFetch(url, new RedmineFetchFunction(_host, _id, apiToken));
     }
 
     public String getUrl(@org.jetbrains.annotations.NotNull final String _host, @org.jetbrains.annotations.NotNull final String _id) {
-        //LOGGER.debug(String.format("Getting URL for issue %s, using pattern %s to match", _id, myPattern.toString()));
         String realId = _id;
         Matcher matcher = myPattern.matcher(_id);
         if (matcher.find()) {
@@ -108,7 +110,6 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
         }
         url.append("issues/");
         url.append(realId);
-        //LOGGER.debug(String.format("URL is %s", url.toString()));
         return url.toString();
     }
 
