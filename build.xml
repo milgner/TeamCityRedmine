@@ -1,228 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="redmineprovider" default="all">
+<project name="redmineprovider" default="help">
+  <property file="build.properties"/>
+    <property environment="env"/>
 
+  <condition property="mvn" value="mvn.bat">
+    <os family="windows"/>
+  </condition>
+  <property name="mvn" value="mvn"/>
 
-    <property file="build.properties"/>
-    <!-- Uncomment the following property if no tests compilation is needed -->
-    <!--
-   <property name="skip.tests" value="true"/>
-    -->
+  <property name="maven.executable" value="${env.M2_HOME}/bin/${mvn}" />
 
-    <!-- Compiler options -->
+  <target name="help">
+    <echo>Usage: </echo>
+    <echo>ant clean - cleans plugin build files</echo>
+    <echo>ant package - builds plugin using maven</echo>
+    <echo>ant deploy  - deploys plugin over ssh</echo>
+  </target>
 
-    <property name="compiler.debug" value="on"/>
-    <property name="compiler.generate.no.warnings" value="off"/>
-    <property name="compiler.args" value=""/>
-    <property name="compiler.max.memory" value="128m"/>
-    <patternset id="ignored.files">
-        <exclude name="**/CVS/**"/>
-        <exclude name="**/SCCS/**"/>
-        <exclude name="**/RCS/**"/>
-        <exclude name="**/rcs/**"/>
-        <exclude name="**/.DS_Store/**"/>
-        <exclude name="**/.svn/**"/>
-        <exclude name="**/.pyc/**"/>
-        <exclude name="**/.pyo/**"/>
-        <exclude name="**/*.pyc/**"/>
-        <exclude name="**/*.pyo/**"/>
-        <exclude name="**/.git/**"/>
-        <exclude name="**/*.hprof/**"/>
-        <exclude name="**/_svn/**"/>
-        <exclude name="**/.hg/**"/>
-        <exclude name="**/*.lib/**"/>
-        <exclude name="**/*~/**"/>
-    </patternset>
-    <patternset id="library.patterns">
-        <include name="*.zip"/>
-        <include name="*.war"/>
-        <include name="*.egg"/>
-        <include name="*.ear"/>
-        <include name="*.swc"/>
-        <include name="*.jar"/>
-    </patternset>
-    <patternset id="compiler.resources">
-        <include name="**/?*.properties"/>
-        <include name="**/?*.xml"/>
-        <include name="**/?*.jsp"/>
-        <include name="**/?*.gif"/>
-        <include name="**/?*.png"/>
-        <include name="**/?*.jpeg"/>
-        <include name="**/?*.jpg"/>
-        <include name="**/?*.html"/>
-        <include name="**/?*.dtd"/>
-        <include name="**/?*.tld"/>
-        <include name="**/?*.ftl"/>
-    </patternset>
+  <target name="package">
+    <exec executable="${maven.executable}">
+      <arg value="package" />
+    </exec>
+  </target>
 
-    <!-- JDK definitions -->
+  <target name="deploy" depends="package">
+    <scp localFile="target/redmine.zip"
+            todir="${deploy.user}@${deploy.host}:${deploy.dir}"
+            keyfile="${deploy.keyfile}"/>
+  </target>
 
-    <property name="jdk.bin.1.6" value="${jdk.home.1.6}/bin"/>
-    <path id="jdk.classpath.1.6">
-        <fileset dir="${jdk.home.1.6}">
-            <include name="jre/lib/alt-rt.jar"/>
-            <include name="jre/lib/jce.jar"/>
-            <include name="jre/lib/rt.jar"/>
-            <include name="jre/lib/jsse.jar"/>
-            <include name="jre/lib/javaws.jar"/>
-            <include name="jre/lib/charsets.jar"/>
-            <include name="jre/lib/resources.jar"/>
-            <include name="jre/lib/plugin.jar"/>
-            <include name="jre/lib/management-agent.jar"/>
-            <include name="jre/lib/deploy.jar"/>
-            <include name="jre/lib/ext/sunjce_provider.jar"/>
-            <include name="jre/lib/ext/localedata.jar"/>
-            <include name="jre/lib/ext/dnsns.jar"/>
-            <include name="jre/lib/ext/sunpkcs11.jar"/>
-        </fileset>
-    </path>
+  <target name="clean">
+    <exec executable="${maven.executable}">
+      <arg value="clean" />
+    </exec>
+  </target>
 
-    <property name="project.jdk.home" value="${jdk.home.1.6}"/>
-    <property name="project.jdk.bin" value="${jdk.bin.1.6}"/>
-    <property name="project.jdk.classpath" value="jdk.classpath.1.6"/>
-
-
-    <!-- Project Libraries -->
-
-    <path id="library.teamcity_libraries.classpath">
-        <pathelement location="${path.variable.teamcitydistribution}/devPackage/common-api.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/devPackage/server-api.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/annotations.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/commons-httpclient-3.1.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/commons-logging.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/jdom.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/server.jar"/>
-        <pathelement location="${path.variable.teamcitydistribution}/webapps/ROOT/WEB-INF/lib/util.jar"/>
-    </path>
-    <!-- Register Custom Compiler Taskdefs -->
-    <property name="javac2.home" value="${idea.home}/lib"/>
-    <path id="javac2.classpath">
-        <pathelement location="${javac2.home}/javac2.jar"/>
-        <pathelement location="${javac2.home}/jdom.jar"/>
-        <pathelement location="${javac2.home}/asm.jar"/>
-        <pathelement location="${javac2.home}/asm-commons.jar"/>
-        <pathelement location="${javac2.home}/jgoodies-forms.jar"/>
-    </path>
-    <target name="register.custom.compilers">
-        <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
-        <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
-    </target>
-
-    <!-- Modules -->
-
-
-    <!-- Module RedmineProvider -->
-
-    <dirname property="module.redmineprovider.basedir" file="${ant.file}"/>
-
-
-    <property name="module.jdk.home.redmineprovider" value="${jdk.home.1.6}"/>
-    <property name="module.jdk.bin.redmineprovider" value="${jdk.bin.1.6}"/>
-    <property name="module.jdk.classpath.redmineprovider" value="jdk.classpath.1.6"/>
-
-    <property name="compiler.args.redmineprovider" value="${compiler.args}"/>
-
-    <property name="redmineprovider.output.dir" value="${module.redmineprovider.basedir}/out/production/RedmineProvider"/>
-    <property name="redmineprovider.testoutput.dir" value="${module.redmineprovider.basedir}/out/test/RedmineProvider"/>
-
-    <path id="redmineprovider.module.bootclasspath">
-        <!-- Paths to be included in compilation bootclasspath -->
-    </path>
-
-    <path id="redmineprovider.module.production.classpath">
-        <path refid="${module.jdk.classpath.redmineprovider}"/>
-        <path refid="library.teamcity_libraries.classpath"/>
-    </path>
-
-    <path id="redmineprovider.runtime.production.module.classpath">
-        <pathelement location="${redmineprovider.output.dir}"/>
-        <path refid="library.teamcity_libraries.classpath"/>
-    </path>
-
-    <path id="redmineprovider.module.classpath">
-        <path refid="${module.jdk.classpath.redmineprovider}"/>
-        <pathelement location="${redmineprovider.output.dir}"/>
-        <path refid="library.teamcity_libraries.classpath"/>
-    </path>
-
-    <path id="redmineprovider.runtime.module.classpath">
-        <pathelement location="${redmineprovider.testoutput.dir}"/>
-        <pathelement location="${redmineprovider.output.dir}"/>
-        <path refid="library.teamcity_libraries.classpath"/>
-    </path>
-
-
-    <patternset id="excluded.from.module.redmineprovider">
-        <patternset refid="ignored.files"/>
-    </patternset>
-
-    <patternset id="excluded.from.compilation.redmineprovider">
-        <patternset refid="excluded.from.module.redmineprovider"/>
-    </patternset>
-
-    <path id="redmineprovider.module.sourcepath">
-        <dirset dir="${module.redmineprovider.basedir}">
-            <include name="src"/>
-        </dirset>
-    </path>
-
-
-    <target name="compile.module.redmineprovider" depends="compile.module.redmineprovider.production,compile.module.redmineprovider.tests"
-            description="Compile module RedmineProvider"/>
-
-    <target name="compile.module.redmineprovider.production" depends="register.custom.compilers"
-            description="Compile module RedmineProvider; production classes">
-        <mkdir dir="${redmineprovider.output.dir}"/>
-        <javac2 destdir="${redmineprovider.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
-                memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.redmineprovider}/javac">
-            <compilerarg line="${compiler.args.redmineprovider}"/>
-            <bootclasspath refid="redmineprovider.module.bootclasspath"/>
-            <classpath refid="redmineprovider.module.production.classpath"/>
-            <src refid="redmineprovider.module.sourcepath"/>
-            <patternset refid="excluded.from.compilation.redmineprovider"/>
-        </javac2>
-
-        <copy todir="${redmineprovider.output.dir}">
-            <fileset dir="${module.redmineprovider.basedir}/src">
-                <patternset refid="compiler.resources"/>
-                <type type="file"/>
-            </fileset>
-            <fileset dir="${module.redmineprovider.basedir}/resources/jar">
-                <patternset refid="compiler.resources"/>
-                <type type="file"/>
-            </fileset>
-        </copy>
-    </target>
-
-    <target name="compile.module.redmineprovider.tests" depends="register.custom.compilers,compile.module.redmineprovider.production"
-            description="compile module RedmineProvider; test classes" unless="skip.tests"/>
-
-    <target name="clean.module.redmineprovider" description="cleanup module">
-        <delete dir="${redmineprovider.output.dir}"/>
-        <delete dir="${redmineprovider.testoutput.dir}"/>
-        <delete dir="${redmineprovider.binaries.dir}"/>
-    </target>
-
-    <target name="package.module.redmineprovider" depends="compile.module.redmineprovider.production">
-        <mkdir dir="${redmineprovider.binaries.dir}"/>
-        <mkdir dir="${redmineprovider.binaries.dir}/zip"/>
-        <mkdir dir="${redmineprovider.binaries.dir}/zip/server"/>
-        <jar basedir="${redmineprovider.output.dir}" destfile="${redmineprovider.binaries.dir}/zip/server/redmine.jar"/>
-        <copy todir="${redmineprovider.binaries.dir}/zip" file="${module.redmineprovider.basedir}/resources/zip/teamcity-plugin.xml"/>
-        <zip destfile="${redmineprovider.binaries.dir}/redmine.zip" basedir="${redmineprovider.binaries.dir}/zip"/>
-        <delete dir="${redmineprovider.binaries.dir}/zip"/>
-    </target>
-
-    <target name="deploy" depends="package.module.redmineprovider">
-        <scp localFile="${redmineprovider.binaries.dir}/redmine.zip" todir="${deploy.user}@${deploy.host}:${deploy.dir}" keyfile="${deploy.keyfile}"/>
-    </target>
-    <target name="init" description="Build initialization">
-        <!-- Perform any build initialization in this target -->
-    </target>
-
-    <target name="clean" depends="clean.module.redmineprovider" description="cleanup all"/>
-
-    <target name="build.modules" depends="init, clean, compile.module.redmineprovider" description="build all modules"/>
-
-    <target name="all" depends="build.modules" description="build all"/>
-    <target name="package" depends="package.module.redmineprovider" description="make ready for deployment"/>
 </project>
