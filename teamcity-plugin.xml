@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
+  <info>
+    <name>redmine</name>
+    <display-name>Redmine issue tracker support</display-name>
+    <version>@Version@</version>
+    <email>Plugin author e-mail</email>
+    <vendor>
+      <name>Marcus Ilgner</name>
+      <url>http://github.com/milgner/TeamCityRedmine</url>
+    </vendor>
+  </info>
+  <deployment use-separate-classloader="false" />
+</teamcity-plugin>
