@@ -4,7 +4,7 @@
   <parent>
     <artifactId>redmine</artifactId>
     <groupId>com.marcusilgner</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1</version>
   </parent>
   <artifactId>build</artifactId>
   <packaging>pom</packaging>
@@ -15,7 +15,7 @@
     <dependency>
       <groupId>com.marcusilgner</groupId>
       <artifactId>redmine-server</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.1</version>
     </dependency>
   </dependencies>
   <build>
