@@ -64,17 +64,15 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
     private InputStream fetchUrlWithRedmineHeader(String _url) throws IOException {
       try {
         HttpClient httpClient = new HttpClient();
-        org.apache.commons.httpclient.HttpURL url;
-        if (_url.toLowerCase().startsWith("https:")) {
-            url = new HttpsURL(_url);
-          if (ignoreSSL) {
-            Protocol easyhttps = new Protocol("https", new org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory(), url.getPort());
-            httpClient.getHostConfiguration().setHost(url.getHost(), url.getPort(), easyhttps);
-          }
+        HttpMethod httpMethod = null;
+        if (_url.toLowerCase().startsWith("https:") && ignoreSSL) {
+          HttpsURL url = new HttpsURL(_url);
+          Protocol easyhttps = new Protocol("https", new org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory(), url.getPort());
+          httpClient.getHostConfiguration().setHost(url.getHost(), url.getPort(), easyhttps);
+          httpMethod = new GetMethod(url.getPath());
         } else {
-            url = new HttpURL(_url);
+          httpMethod = new GetMethod(_url);
         }
-        HttpMethod httpMethod = new GetMethod(url.getPath());
         httpMethod.setRequestHeader("X-Redmine-API-Key", apiToken);
         httpClient.executeMethod(httpMethod);
         return httpMethod.getResponseBodyAsStream();
