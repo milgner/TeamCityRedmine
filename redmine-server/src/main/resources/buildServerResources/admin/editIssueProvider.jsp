@@ -38,5 +38,11 @@
          <span class="fieldExplanation">Use general regexp, e.g. #(\d+)<bs:help file="Issue+Tracker+Tab"/></span>
         </td>
     </tr>
+    <tr>
+        <th><label for="ignoreSSL" class="shortLabel">Ignore SSL?</label></th>
+        <td>
+            <props:checkboxProperty name="ignoreSSL"/>
+        </td>
+    </tr>
   </table>
 </div>
