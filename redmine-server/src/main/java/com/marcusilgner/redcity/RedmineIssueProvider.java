@@ -2,6 +2,7 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.issueTracker.AbstractIssueProvider;
 import jetbrains.buildServer.issueTracker.IssueFetcher;
+import jetbrains.buildServer.issueTracker.IssueProviderType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -12,11 +13,10 @@ import java.util.regex.Pattern;
  * User: Marcus Ilgner <mail@marcusilgner.com>
  * Date: 24/01/11
  */
-public class RedmineIssueProvider
-        extends AbstractIssueProvider {
+public class RedmineIssueProvider extends AbstractIssueProvider {
 
-    public RedmineIssueProvider(@org.jetbrains.annotations.NotNull IssueFetcher fetcher) {
-        super("redmine", fetcher);
+    public RedmineIssueProvider(@NotNull final IssueProviderType type, @NotNull final IssueFetcher fetcher) {
+        super(type.getType(), fetcher);
     }
 
     @NotNull

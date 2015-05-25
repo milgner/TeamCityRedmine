@@ -3,6 +3,7 @@ package com.marcusilgner.redcity;
 import jetbrains.buildServer.issueTracker.AbstractIssueProviderFactory;
 import jetbrains.buildServer.issueTracker.IssueFetcher;
 import jetbrains.buildServer.issueTracker.IssueProvider;
+import jetbrains.buildServer.issueTracker.IssueProviderType;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,12 +11,13 @@ import org.jetbrains.annotations.NotNull;
  * Date: 24/01/11
  */
 public class RedmineIssueProviderFactory extends AbstractIssueProviderFactory {
-    protected RedmineIssueProviderFactory(@NotNull IssueFetcher fetcher) {
-        super(fetcher, "redmine");
+
+    public RedmineIssueProviderFactory(@NotNull final IssueProviderType type, @NotNull IssueFetcher fetcher) {
+        super(type, fetcher);
     }
 
     @NotNull
     public IssueProvider createProvider() {
-        return new RedmineIssueProvider(myFetcher);
+        return new RedmineIssueProvider(myType, myFetcher);
     }
 }

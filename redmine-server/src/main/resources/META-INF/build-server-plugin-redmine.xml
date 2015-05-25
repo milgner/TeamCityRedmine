@@ -4,7 +4,10 @@
     <bean id="redmineFetcher" class="com.marcusilgner.redcity.RedmineIssueFetcher">
         <constructor-arg index="0" ref="ehCacheUtil"/>
     </bean>
+
+    <bean id="redmineType" class="com.marcusilgner.redcity.RedmineIssueProviderType"/>
     <bean id="redmineFactory" class="com.marcusilgner.redcity.RedmineIssueProviderFactory">
-        <constructor-arg index="0" ref="redmineFetcher"/>
+        <constructor-arg index="0" ref="redmineType"/>
+        <constructor-arg index="1" ref="redmineFetcher"/>
     </bean>
 </beans>
