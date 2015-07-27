@@ -27,6 +27,8 @@ public class RedmineIssueProvider extends AbstractIssueProvider {
             RedmineIssueFetcher fetcher = (RedmineIssueFetcher)myFetcher;
             fetcher.setPattern(result);
             fetcher.setApiToken(properties.get("apiToken"));
+            String ignoreVal = properties.get("ignoreSSL");
+            fetcher.ignoreSSL(ignoreVal.equals("true"));
         }
         return result;
     }

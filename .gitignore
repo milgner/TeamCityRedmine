@@ -1,5 +1,8 @@
 .idea
-RedmineProvider.iml
+*.iml
 out
 bin
 build.properties
+build/target/
+target/
+redmine-server/target/

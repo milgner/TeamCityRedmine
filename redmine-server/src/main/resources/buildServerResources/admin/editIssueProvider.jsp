@@ -35,7 +35,13 @@
        <td>
          <props:textProperty name="pattern" maxlength="100" style="width: 16em;"/>
          <span id="error_idPrefix" class="error"></span>
-         <span class="fieldExplanation">Use general regexp, e.g. #(\d+)<bs:help file="Issue+Tracker+Tab"/></span>
+         <span class="fieldExplanation">Use general regexp, e.g. FOO-(\d+)<bs:help file="Issue+Tracker+Tab"/></span>
+        </td>
+    </tr>
+    <tr>
+        <th><label for="ignoreSSL" class="shortLabel">Ignore SSL?</label></th>
+        <td>
+            <props:checkboxProperty name="ignoreSSL"/>
         </td>
     </tr>
   </table>

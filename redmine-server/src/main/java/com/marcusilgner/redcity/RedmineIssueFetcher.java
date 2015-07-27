@@ -6,8 +6,10 @@ import jetbrains.buildServer.util.FileUtil;
 import jetbrains.buildServer.util.cache.EhCacheUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +29,13 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
 
   private Pattern myPattern;
   private String apiToken;
+  private boolean ignoreSSL;
 
   public void setPattern(final Pattern _myPattern) {
     myPattern = _myPattern;
   }
-
-  public void setApiToken(final String _apiToken) {
-    apiToken = _apiToken;
-  }
+  public void ignoreSSL(boolean _doIgnore) { ignoreSSL = _doIgnore; }
+  public void setApiToken(final String _apiToken) { apiToken = _apiToken; }
 
   public class RedmineFetchFunction implements FetchFunction {
     private String host;
@@ -61,10 +62,17 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
 
     private InputStream fetchUrlWithRedmineHeader(String _url) throws IOException {
       try {
-        org.apache.commons.httpclient.HttpURL url = new org.apache.commons.httpclient.HttpURL(_url);
-        HttpMethod httpMethod = new GetMethod(_url);
-        httpMethod.setRequestHeader("X-Redmine-API-Key", apiToken);
         HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = null;
+        if (_url.toLowerCase().startsWith("https:") && ignoreSSL) {
+          HttpsURL url = new HttpsURL(_url);
+          Protocol easyhttps = new Protocol("https", new org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory(), url.getPort());
+          httpClient.getHostConfiguration().setHost(url.getHost(), url.getPort(), easyhttps);
+          httpMethod = new GetMethod(url.getPath());
+        } else {
+          httpMethod = new GetMethod(_url);
+        }
+        httpMethod.setRequestHeader("X-Redmine-API-Key", apiToken);
         httpClient.executeMethod(httpMethod);
         return httpMethod.getResponseBodyAsStream();
       } catch (URIException e) {
