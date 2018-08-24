@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
  */
 public class RedmineIssueProvider extends AbstractIssueProvider {
 
+    @SuppressWarnings("WeakerAccess")
     public RedmineIssueProvider(@NotNull final IssueProviderType type, @NotNull final IssueFetcher fetcher) {
         super(type.getType(), fetcher);
     }
@@ -22,13 +23,12 @@ public class RedmineIssueProvider extends AbstractIssueProvider {
     @NotNull
     @Override
     protected Pattern compilePattern(@NotNull final Map<String, String> properties) {
-        Pattern result = super.compilePattern(properties);
+        final Pattern result = super.compilePattern(properties);
         if (myFetcher instanceof RedmineIssueFetcher) {
             RedmineIssueFetcher fetcher = (RedmineIssueFetcher)myFetcher;
             fetcher.setPattern(result);
             fetcher.setApiToken(properties.get("apiToken"));
-            String ignoreVal = properties.get("ignoreSSL");
-            fetcher.ignoreSSL(ignoreVal != null && ignoreVal.equals("true"));
+            fetcher.ignoreSSL(Boolean.valueOf(properties.get("ignoreSSL")));
         }
         return result;
     }
