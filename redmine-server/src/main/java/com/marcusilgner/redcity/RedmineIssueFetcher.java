@@ -2,11 +2,9 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.issueTracker.AbstractIssueFetcher;
 import jetbrains.buildServer.issueTracker.IssueData;
+import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.util.cache.EhCacheUtil;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpsURL;
-import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -39,19 +37,21 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
   }
 
   @NotNull
-  public IssueData getIssue(@NotNull final String host, @NotNull final String id, @Nullable final org.apache.commons.httpclient.Credentials credentials)
-          throws Exception {
+  public IssueData getIssue(@NotNull final String host,
+                            @NotNull final String id,
+                            @Nullable final Credentials credentials) throws Exception {
     final String url = getUrl(host, id);
     return getFromCacheOrFetch(url, () -> {
       try {
         return myParser.parseIssueData(fetchUrlWithRedmineHeader(url + ".xml"), url);
       } catch (IOException e) {
-        throw new RuntimeException(String.format("Error reading XML for issue '%s' on '%s'.", id, host));
+        Loggers.ISSUE_TRACKERS.warn(String.format("IOException when trying to parse the issue data for '%s' on '%s'", id, host), e);
+        throw new RuntimeException(String.format("Error reading XML for issue '%s' on '%s'.", id, host), e);
       }
     });
   }
 
-  private InputStream fetchUrlWithRedmineHeader(String url) throws IOException {
+  private InputStream fetchUrlWithRedmineHeader(@NotNull final String url) throws IOException {
     try {
       HttpClient httpClient = new HttpClient();
       HttpMethod httpMethod;
@@ -68,6 +68,7 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
       return httpMethod.getResponseBodyAsStream();
     } catch (URIException e) {
       // too lazy to write exception handling :P
+      Loggers.ISSUE_TRACKERS.warn(e);
       throw new RuntimeException(e.getMessage());
     }
   }
