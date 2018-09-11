@@ -1,0 +1,19 @@
+<issue>
+    <id>2</id>
+    <project id="1" name="Test Project"/>
+    <tracker id="2" name="Feature"/>
+    <status id="1" name="New"/>
+    <priority id="2" name="Normal"/>
+    <author id="1" name="UserName LastName Admin"/>
+    <subject>This is a feature</subject>
+    <description>hello</description>
+    <start_date>2018-08-23</start_date>
+    <due_date/>
+    <done_ratio>0</done_ratio>
+    <is_private>false</is_private>
+    <estimated_hours/>
+    <total_estimated_hours/>
+    <created_on>2018-08-23T15:13:35Z</created_on>
+    <updated_on>2018-08-23T15:13:35Z</updated_on>
+    <closed_on/>
+</issue>
