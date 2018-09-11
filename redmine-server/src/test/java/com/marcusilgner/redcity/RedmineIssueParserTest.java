@@ -2,9 +2,12 @@ package com.marcusilgner.redcity;
 
 import jetbrains.buildServer.BaseTestCase;
 import jetbrains.buildServer.issueTracker.IssueData;
+import jetbrains.buildServer.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.File;
 
 public class RedmineIssueParserTest extends BaseTestCase {
 
@@ -60,6 +63,6 @@ public class RedmineIssueParserTest extends BaseTestCase {
   }
 
   private IssueData getIssueDataFromFile(@NotNull final String filename) throws Exception {
-    return myParser.parseIssueData(RedmineIssueParserTest.class.getResourceAsStream("/" + filename), "http://fake");
+    return myParser.parseIssueData(FileUtil.readText(new File(RedmineIssueParserTest.class.getResource("/" + filename).toURI())), "http://fake");
   }
 }

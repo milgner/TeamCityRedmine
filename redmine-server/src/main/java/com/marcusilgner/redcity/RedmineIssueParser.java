@@ -5,19 +5,15 @@ import jetbrains.buildServer.issueTracker.IssueData;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.util.CollectionsUtil;
 import jetbrains.buildServer.util.ExceptionUtil;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import static jetbrains.buildServer.issueTracker.IssueData.*;
-import static jetbrains.buildServer.issueTracker.IssueData.PRIORITY_FIELD;
 
 class RedmineIssueParser {
 
-  IssueData parseIssueData(@NotNull final InputStream input, @NotNull final String url) throws IOException {
+  IssueData parseIssueData(@NotNull final String input, @NotNull final String url) {
     try {
       final Map map = new XmlMapper().readValue(input, Map.class);
       String summary = getStringValue(map, "subject");
@@ -26,8 +22,6 @@ class RedmineIssueParser {
       String doneRatio = getStringValue(map, "done_ratio");
 
       if (id == null || summary == null || state == null) {
-        Loggers.ISSUE_TRACKERS.warn("Failed to parse issue data. Enable debug for details");
-        Loggers.ISSUE_TRACKERS.debug(IOUtils.toString(input, "UTF-8"));
         throw new RuntimeException("Failed to parse issue data");
       }
       boolean resolved = state.equalsIgnoreCase("Closed") || (doneRatio != null && doneRatio.equals("100"));
@@ -41,9 +35,11 @@ class RedmineIssueParser {
               resolved,
               "feature".equalsIgnoreCase(type),
               url);
-    } catch (IOException e) {
-      throw e;
     } catch (Exception e) {
+      Loggers.ISSUE_TRACKERS.warn(
+              String.format("IOException when trying to parse the issue data from %s. Enable debug for details", url),
+              e);
+      Loggers.ISSUE_TRACKERS.debug(input);
       ExceptionUtil.rethrowAsRuntimeException(e);
     }
     return null;

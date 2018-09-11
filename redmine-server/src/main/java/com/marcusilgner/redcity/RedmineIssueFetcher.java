@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,14 +43,13 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
     return getFromCacheOrFetch(url, () -> {
       try {
         return myParser.parseIssueData(fetchUrlWithRedmineHeader(url + ".xml"), url);
-      } catch (IOException e) {
-        Loggers.ISSUE_TRACKERS.warn(String.format("IOException when trying to parse the issue data for '%s' on '%s'", id, host), e);
+      } catch (Exception e) {
         throw new RuntimeException(String.format("Error reading XML for issue '%s' on '%s'.", id, host), e);
       }
     });
   }
 
-  private InputStream fetchUrlWithRedmineHeader(@NotNull final String url) throws IOException {
+  private String fetchUrlWithRedmineHeader(@NotNull final String url) throws IOException {
     try {
       HttpClient httpClient = new HttpClient();
       HttpMethod httpMethod;
@@ -65,7 +63,7 @@ public class RedmineIssueFetcher extends AbstractIssueFetcher {
       }
       httpMethod.setRequestHeader("X-Redmine-API-Key", apiToken);
       httpClient.executeMethod(httpMethod);
-      return httpMethod.getResponseBodyAsStream();
+      return httpMethod.getResponseBodyAsString();
     } catch (URIException e) {
       // too lazy to write exception handling :P
       Loggers.ISSUE_TRACKERS.warn(e);
